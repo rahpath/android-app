@@ -1,0 +1,10 @@
+env: load .env
+env: export GEMINI_API_KEY
+Starting project at C:\Users\Aryan\Desktop\projects\active\rah-modile-app
+Using src/app as the root directory for Expo Router.
+Metro is running in CI mode, reloads are disabled. Remove CI=true to enable watch mode.
+Starting Metro Bundler
+
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:19001
+Logs for your project will appear below.

@@ -1,0 +1,26 @@
+
+> rah-mobile@1.0.0 start
+> expo start
+
+env: load .env
+env: export GEMINI_API_KEY
+Starting project at C:\Users\Aryan\Desktop\projects\active\rah-modile-app
+Using src/app as the root directory for Expo Router.
+Starting Metro Bundler
+
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+ ERROR  Project is incompatible with this version of Expo Go
+
+This project requires a newer version of Expo Go.
+
+How to fix this error:
+Download the latest version of Expo Go from the Play Store.
+ ERROR  Project is incompatible with this version of Expo Go
+
+This project requires a newer version of Expo Go.
+
+How to fix this error:
+Download the latest version of Expo Go from the Play Store.
+
+C:\Users\Aryan\Desktop\projects\active\rah-modile-app>
