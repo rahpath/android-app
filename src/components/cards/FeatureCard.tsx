@@ -17,8 +17,13 @@ export function FeatureCard({ title, subtitle, onPress }: FeatureCardProps) {
     <Pressable onPress={onPress} style={({ pressed }) => [pressed && styles.pressed]}>
       <GlassCard style={styles.card}>
         <View style={styles.content}>
-          <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-          {subtitle ? <Text style={[styles.subtitle, { color: colors.textMuted }]}>{subtitle}</Text> : null}
+          <View style={styles.row}>
+            <View style={styles.copy}>
+              <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+              {subtitle ? <Text style={[styles.subtitle, { color: colors.textMuted }]}>{subtitle}</Text> : null}
+            </View>
+            <Text style={[styles.arrow, { color: colors.textSoft }]}>+</Text>
+          </View>
         </View>
       </GlassCard>
     </Pressable>
@@ -30,8 +35,17 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
   content: {
-    minHeight: 78,
+    minHeight: 84,
     justifyContent: "center",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: theme.spacing.md,
+  },
+  copy: {
+    flex: 1,
     gap: 6,
   },
   title: {
@@ -40,6 +54,11 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: theme.typography.caption,
+    lineHeight: 18,
+  },
+  arrow: {
+    fontSize: 24,
+    fontWeight: "300",
   },
   pressed: {
     opacity: 0.9,

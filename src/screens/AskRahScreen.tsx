@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,6 +18,12 @@ import { RahAppShell } from "@/components/shell/RahAppShell";
 import { useMemory } from "@/context";
 import { useRahEngine } from "@/intelligence/rahEngine";
 import { theme } from "@/theme/theme";
+
+const SUGGESTED_PROMPTS = [
+  "Why do I feel stuck?",
+  "What should I do next?",
+  "Why does this keep repeating?",
+] as const;
 
 export function AskRahScreen() {
   const insets = useSafeAreaInsets();
@@ -43,19 +50,39 @@ export function AskRahScreen() {
     return () => clearInterval(interval);
   }, [isThinking]);
 
-  const handleAskRah = async () => {
-    const trimmedQuestion = question.trim();
+  const handleAskRah = async (overrideQuestion?: string) => {
+    const trimmedQuestion = (overrideQuestion ?? question).trim();
     if (!trimmedQuestion || isThinking) {
       return;
     }
 
     setIsThinking(true);
-    setPendingMode(trimmedQuestion.toLowerCase().includes("should i") || trimmedQuestion.toLowerCase().includes("decision")
-      ? "decision_insight"
-      : "ask_rah");
+    setPendingMode(
+      trimmedQuestion.toLowerCase().includes("should i") || trimmedQuestion.toLowerCase().includes("decision")
+        ? "decision_insight"
+        : "ask_rah",
+    );
     setQuestion("");
     await askRah(trimmedQuestion);
     setIsThinking(false);
+  };
+
+  const handlePromptPress = (prompt: string) => {
+    setQuestion(prompt);
+    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 120);
+  };
+
+  const handleQuickFollowUp = async (prefix: "Explain more" | "What should I do?", originalQuestion: string) => {
+    if (isThinking) {
+      return;
+    }
+
+    const nextQuestion =
+      prefix === "Explain more"
+        ? `${prefix} about this: ${originalQuestion}`
+        : `${prefix} about this situation: ${originalQuestion}`;
+
+    await handleAskRah(nextQuestion);
   };
 
   return (
@@ -96,15 +123,28 @@ export function AskRahScreen() {
                     </Text>
                   </View>
                   <Text style={styles.answerText}>{event.description}</Text>
+                  <View style={styles.followUpRow}>
+                    <Pressable onPress={() => void handleQuickFollowUp("Explain more", event.title)}>
+                      <Text style={styles.followUpAction}>Explain more</Text>
+                    </Pressable>
+                    <Pressable onPress={() => void handleQuickFollowUp("What should I do?", event.title)}>
+                      <Text style={styles.followUpAction}>What should I do?</Text>
+                    </Pressable>
+                  </View>
                 </GlassPanel>
               </View>
             ))
           ) : (
             <GlassPanel style={styles.emptyState}>
               <Text style={styles.answerLabel}>Ask Rah</Text>
-              <Text style={styles.answerText}>
-                Why do my relationships become intense?
-              </Text>
+              <Text style={styles.answerText}>Start with one clear question and let the thread build from there.</Text>
+              <View style={styles.promptList}>
+                {SUGGESTED_PROMPTS.map((prompt) => (
+                  <Pressable key={prompt} style={styles.promptChip} onPress={() => handlePromptPress(prompt)}>
+                    <Text style={styles.promptText}>{prompt}</Text>
+                  </Pressable>
+                ))}
+              </View>
             </GlassPanel>
           )}
 
@@ -113,7 +153,8 @@ export function AskRahScreen() {
               <View style={styles.typingRow}>
                 <ActivityIndicator size="small" color={theme.colors.text} />
                 <Text style={styles.answerText}>
-                  {pendingMode === "decision_insight" ? "Weighing your decision" : "Reading your thread"}{typingDots}
+                  {pendingMode === "decision_insight" ? "Weighing your decision" : "Reading your thread"}
+                  {typingDots}
                 </Text>
               </View>
             </GlassPanel>
@@ -124,11 +165,11 @@ export function AskRahScreen() {
           <GlassInput
             value={question}
             onChangeText={setQuestion}
-            placeholder="Ask Rah about your patterns, feelings, or relationships"
+            placeholder="Ask anything about your life..."
             multiline
             onFocus={() => setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 120)}
           />
-          <GlassButton label="Send" onPress={handleAskRah} />
+          <GlassButton label="Send" onPress={() => void handleAskRah()} />
         </View>
       </KeyboardAvoidingView>
     </RahAppShell>
@@ -180,6 +221,7 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     marginTop: theme.spacing.lg,
+    gap: theme.spacing.md,
   },
   questionLabel: {
     color: theme.colors.secondary,
@@ -214,6 +256,33 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.typography.body,
     lineHeight: 24,
+  },
+  promptList: {
+    gap: theme.spacing.sm,
+  },
+  promptChip: {
+    borderRadius: theme.radius.pill,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  promptText: {
+    color: theme.colors.text,
+    fontSize: theme.typography.caption,
+    fontWeight: "700",
+  },
+  followUpRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: theme.spacing.md,
+    marginTop: theme.spacing.sm,
+  },
+  followUpAction: {
+    color: theme.colors.secondary,
+    fontSize: theme.typography.caption,
+    fontWeight: "700",
   },
   typingBubble: {
     marginRight: theme.spacing.xl,

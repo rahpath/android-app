@@ -105,7 +105,7 @@ export function MysticBackground() {
           colors={
             resolvedMode === "light"
               ? ["rgba(176,190,255,0.24)", "rgba(174,232,255,0.12)", "rgba(176,190,255,0.04)"]
-              : ["rgba(163,139,255,0.26)", "rgba(127,214,255,0.08)", "rgba(163,139,255,0.02)"]
+              : ["rgba(124,92,255,0.24)", "rgba(94,58,181,0.10)", "rgba(124,92,255,0.02)"]
           }
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -144,7 +144,7 @@ export function MysticBackground() {
             y1={stars[2].y}
             x2={stars[3].x}
             y2={stars[3].y}
-            stroke={resolvedMode === "light" ? "rgba(174,232,255,0.18)" : "rgba(127,214,255,0.12)"}
+            stroke={resolvedMode === "light" ? "rgba(174,232,255,0.18)" : "rgba(161,126,255,0.10)"}
             strokeWidth={1}
           />
           <Line
@@ -161,7 +161,7 @@ export function MysticBackground() {
             r={width * 0.18}
             stroke={resolvedMode === "light" ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.05)"}
             strokeWidth={1}
-            fill={resolvedMode === "light" ? colors.glowSoft : "rgba(163,139,255,0.03)"}
+            fill={resolvedMode === "light" ? colors.glowSoft : "rgba(124,92,255,0.03)"}
           />
         </Svg>
       </Animated.View>

@@ -20,12 +20,13 @@ export function GlassInput(props: TextInputProps) {
 
 const styles = StyleSheet.create({
   wrapper: {
-    minHeight: 56,
+    minHeight: 58,
+    backgroundColor: "rgba(255,255,255,0.04)",
   },
   input: {
     fontSize: theme.typography.body,
-    minHeight: 56,
-    paddingHorizontal: theme.spacing.md,
+    minHeight: 58,
+    paddingHorizontal: 18,
     paddingVertical: theme.spacing.sm,
   },
 });

@@ -2,54 +2,28 @@ import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { GlassButton } from "@/components/glass/GlassButton";
-import { GlassCard } from "@/components/glass/GlassCard";
 import { GlassContainer } from "@/components/glass/GlassContainer";
-import { GlassPanel } from "@/components/glass/GlassPanel";
 import { AtmosphericScrollView } from "@/components/motion/AtmosphericScrollView";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { useCurrentContext } from "@/context";
 import { theme } from "@/theme/theme";
 import type { ContextIntent } from "@/types/domain";
 
-const INTENT_OPTIONS: Array<{ label: string; value: ContextIntent; description: string }> = [
-  {
-    label: "Understand Myself",
-    value: "understand_myself",
-    description: "See your emotional patterns and inner wiring more clearly.",
-  },
-  {
-    label: "Decision Support",
-    value: "decision_support",
-    description: "Bring real choices to Rah and get aligned perspective.",
-  },
-  {
-    label: "Relationship Clarity",
-    value: "relationship_clarity",
-    description: "Understand dynamics, attraction, and repeating loops.",
-  },
-  {
-    label: "Career Direction",
-    value: "career_direction",
-    description: "Find clearer timing and language for your next move.",
-  },
-  {
-    label: "Emotional Grounding",
-    value: "emotional_grounding",
-    description: "Use Rah to feel steadier and less internally chaotic.",
-  },
+const INTENT_OPTIONS: Array<{ label: string; value: ContextIntent }> = [
+  { label: "Understand myself", value: "understand_myself" },
+  { label: "Decision support", value: "decision_support" },
+  { label: "Relationship clarity", value: "relationship_clarity" },
+  { label: "Career direction", value: "career_direction" },
+  { label: "Emotional grounding", value: "emotional_grounding" },
 ];
 
 export function IntentSetupScreen() {
   const { currentContext, updateCurrentContext } = useCurrentContext();
   const selectedIntent = currentContext?.activeIntent || "";
 
-  const handleContinue = async () => {
-    if (!selectedIntent) {
-      return;
-    }
-
+  const handleSelect = async (value: ContextIntent) => {
     await updateCurrentContext({
-      activeIntent: selectedIntent,
+      activeIntent: value,
     });
     router.push("/context-setup");
   };
@@ -58,13 +32,11 @@ export function IntentSetupScreen() {
     <GlassContainer>
       <AtmosphericScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <OnboardingProgress stageLabel="Intent" currentStep={3} totalSteps={4} />
-        <GlassPanel style={styles.hero}>
-          <Text style={styles.kicker}>Intent</Text>
-          <Text style={styles.title}>What do you want Rah to help with most right now?</Text>
-          <Text style={styles.subtitle}>
-            This shapes the tone of your dashboard, daily insights, and chat guidance from the beginning.
-          </Text>
-        </GlassPanel>
+
+        <View style={styles.hero}>
+          <Text style={styles.kicker}>Current focus</Text>
+          <Text style={styles.title}>What feels most important right now?</Text>
+        </View>
 
         <View style={styles.optionList}>
           {INTENT_OPTIONS.map((option) => {
@@ -72,18 +44,14 @@ export function IntentSetupScreen() {
             return (
               <Pressable
                 key={option.value}
-                onPress={() => updateCurrentContext({ activeIntent: option.value })}
+                onPress={() => handleSelect(option.value)}
+                style={[styles.option, isActive && styles.optionActive]}
               >
-                <GlassCard style={[styles.intentCard, isActive && styles.intentCardActive]}>
-                  <Text style={styles.intentTitle}>{option.label}</Text>
-                  <Text style={styles.intentDescription}>{option.description}</Text>
-                </GlassCard>
+                <Text style={[styles.optionText, isActive && styles.optionTextActive]}>{option.label}</Text>
               </Pressable>
             );
           })}
         </View>
-
-        <GlassButton label="Continue" onPress={handleContinue} />
       </AtmosphericScrollView>
     </GlassContainer>
   );
@@ -91,50 +59,56 @@ export function IntentSetupScreen() {
 
 const styles = StyleSheet.create({
   content: {
+    flexGrow: 1,
     paddingBottom: theme.spacing.xl,
-    gap: theme.spacing.md,
   },
   hero: {
-    gap: theme.spacing.sm,
-    marginTop: theme.spacing.sm,
+    gap: 10,
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
   },
   kicker: {
     color: theme.colors.secondary,
     fontSize: theme.typography.caption,
     fontWeight: "700",
     textTransform: "uppercase",
-    letterSpacing: 1,
+    letterSpacing: 1.2,
   },
   title: {
     color: theme.colors.text,
-    fontSize: theme.typography.h2,
+    fontSize: 34,
     fontWeight: "800",
-    lineHeight: 30,
-  },
-  subtitle: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.body,
-    lineHeight: 24,
+    lineHeight: 40,
+    letterSpacing: -0.8,
+    maxWidth: 280,
   },
   optionList: {
-    gap: theme.spacing.sm,
+    gap: 14,
   },
-  intentCard: {
-    borderColor: "rgba(255,255,255,0.18)",
-    gap: theme.spacing.xs,
+  option: {
+    minHeight: 74,
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
   },
-  intentCardActive: {
-    borderColor: "rgba(163,139,255,0.85)",
-    backgroundColor: "rgba(107,124,255,0.22)",
+  optionActive: {
+    backgroundColor: "rgba(124,92,255,0.2)",
+    borderColor: "rgba(183,156,255,0.55)",
+    shadowColor: theme.colors.glow,
+    shadowOpacity: 0.24,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 6,
   },
-  intentTitle: {
-    color: theme.colors.text,
-    fontSize: theme.typography.h3,
+  optionText: {
+    color: theme.colors.textMuted,
+    fontSize: 17,
     fontWeight: "700",
   },
-  intentDescription: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.body,
-    lineHeight: 22,
+  optionTextActive: {
+    color: theme.colors.text,
   },
 });

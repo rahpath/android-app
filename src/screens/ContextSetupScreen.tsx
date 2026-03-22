@@ -1,78 +1,89 @@
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useMemo, useRef, useState } from "react";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { GlassButton } from "@/components/glass/GlassButton";
-import { GlassCard } from "@/components/glass/GlassCard";
 import { GlassContainer } from "@/components/glass/GlassContainer";
 import { GlassInput } from "@/components/glass/GlassInput";
-import { GlassPanel } from "@/components/glass/GlassPanel";
 import { AtmosphericScrollView } from "@/components/motion/AtmosphericScrollView";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { useCurrentContext, useUser } from "@/context";
 import { theme } from "@/theme/theme";
+import type { CurrentContextState } from "@/types/domain";
 
-const LIFE_RATING_OPTIONS = ["Great", "Okay", "Messy", "Overwhelming"];
-const LIFE_AREA_OPTIONS = ["Career", "Relationships", "Purpose", "Money", "Family", "Health"];
-const PATTERN_OPTIONS = [
-  "I overthink and delay",
-  "I repeat intense dynamics",
-  "I lose direction fast",
-  "I compare myself too much",
-  "I carry stress in my body",
-];
-const SUPPORT_OPTIONS = ["Clarity", "Calm", "Direction", "Validation"];
-
-function OptionGroup({
-  title,
-  options,
-  selectedValue,
-  onSelect,
-}: {
-  title: string;
-  options: string[];
-  selectedValue: string;
-  onSelect: (value: string) => void;
-}) {
-  return (
-    <View style={styles.group}>
-      <Text style={styles.groupTitle}>{title}</Text>
-      <View style={styles.chipsWrap}>
-        {options.map((option) => {
-          const isActive = selectedValue === option;
-          return (
-            <Pressable key={option} onPress={() => onSelect(option)}>
-              <GlassCard style={[styles.chip, isActive && styles.chipActive]}>
-                <Text style={[styles.chipText, isActive && styles.chipTextActive]}>{option}</Text>
-              </GlassCard>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
+const STEPS = [
+  {
+    key: "lifeRating",
+    question: "How is life feeling lately?",
+    options: ["Great", "Okay", "Messy", "Overwhelming"],
+  },
+  {
+    key: "mainLifeArea",
+    question: "Which life area feels most charged?",
+    options: ["Career", "Relationships", "Purpose", "Money", "Family", "Health"],
+  },
+  {
+    key: "repeatingPattern",
+    question: "What pattern feels too familiar?",
+    options: [
+      "I overthink and delay",
+      "I repeat intense dynamics",
+      "I lose direction fast",
+      "I compare myself too much",
+      "I carry stress in my body",
+    ],
+  },
+  {
+    key: "supportNeed",
+    question: "What would help most right now?",
+    options: ["Clarity", "Calm", "Direction", "Validation"],
+  },
+] as const;
 
 export function ContextSetupScreen() {
   const { currentContext, updateCurrentContext } = useCurrentContext();
   const { updateUser } = useUser();
+  const transition = useRef(new Animated.Value(1)).current;
+  const [stepIndex, setStepIndex] = useState(0);
+  const [summary, setSummary] = useState(currentContext?.currentFocusSummary || "");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const canContinue = Boolean(
-    currentContext?.activeIntent
-      && currentContext.lifeRating
-      && currentContext.mainLifeArea
-      && currentContext.repeatingPattern
-      && currentContext.supportNeed,
-  );
+  const isTextStep = stepIndex === STEPS.length;
+  const currentStep = isTextStep ? null : STEPS[stepIndex];
+  const canContinue = useMemo(() => Boolean(summary.trim()), [summary]);
 
-  const handleContinue = async () => {
-    if (!currentContext?.activeIntent || !canContinue) {
+  const animateIn = () => {
+    transition.setValue(0);
+    Animated.timing(transition, {
+      toValue: 1,
+      duration: 240,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleChoice = async (option: string) => {
+    if (!currentStep) {
       return;
     }
 
+    await updateCurrentContext({ [currentStep.key]: option } as Partial<CurrentContextState>);
+    if (stepIndex < STEPS.length) {
+      setStepIndex((current) => current + 1);
+      setTimeout(animateIn, 0);
+    }
+  };
+
+  const handleContinue = async () => {
+    if (!canContinue || isSaving) {
+      return;
+    }
+
+    setIsSaving(true);
+    await updateCurrentContext({ currentFocusSummary: summary.trim() });
     await updateUser({
       onboardingCompleted: false,
     });
-
+    setIsSaving(false);
     router.push("/context-deepen");
   };
 
@@ -81,55 +92,48 @@ export function ContextSetupScreen() {
       <AtmosphericScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <OnboardingProgress stageLabel="Context" currentStep={3} totalSteps={4} />
 
-        <GlassPanel style={styles.hero}>
-          <Text style={styles.kicker}>Current Context</Text>
-          <Text style={styles.title}>Capture the present-day picture</Text>
-          <Text style={styles.subtitle}>
-            This structured context layer will flow into every future conversation, insight, and decision reflection.
+        <Animated.View
+          style={[
+            styles.stage,
+            {
+              opacity: transition,
+              transform: [
+                {
+                  translateY: transition.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [18, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <Text style={styles.question}>
+            {isTextStep ? "One sentence on what's most real right now" : currentStep?.question}
           </Text>
-        </GlassPanel>
 
-        <OptionGroup
-          title="How is life feeling lately?"
-          options={LIFE_RATING_OPTIONS}
-          selectedValue={currentContext?.lifeRating || ""}
-          onSelect={(value) => updateCurrentContext({ lifeRating: value })}
-        />
-
-        <OptionGroup
-          title="Which life area feels most charged?"
-          options={LIFE_AREA_OPTIONS}
-          selectedValue={currentContext?.mainLifeArea || ""}
-          onSelect={(value) => updateCurrentContext({ mainLifeArea: value })}
-        />
-
-        <OptionGroup
-          title="What pattern feels too familiar?"
-          options={PATTERN_OPTIONS}
-          selectedValue={currentContext?.repeatingPattern || ""}
-          onSelect={(value) => updateCurrentContext({ repeatingPattern: value })}
-        />
-
-        <OptionGroup
-          title="What would help most right now?"
-          options={SUPPORT_OPTIONS}
-          selectedValue={currentContext?.supportNeed || ""}
-          onSelect={(value) => updateCurrentContext({ supportNeed: value })}
-        />
-
-        <View style={styles.group}>
-          <Text style={styles.groupTitle}>One sentence on what's most real right now</Text>
-          <GlassInput
-            value={currentContext?.currentFocusSummary || ""}
-            onChangeText={(value) => updateCurrentContext({ currentFocusSummary: value })}
-            placeholder="A short honest sentence is enough"
-            multiline
-            textAlignVertical="top"
-            style={styles.summaryInput}
-          />
-        </View>
-
-        <GlassButton label="Go Deeper" onPress={handleContinue} />
+          {isTextStep ? (
+            <View style={styles.textStep}>
+              <GlassInput
+                value={summary}
+                onChangeText={setSummary}
+                placeholder="A short honest sentence is enough"
+                multiline
+                textAlignVertical="top"
+                style={styles.summaryInput}
+              />
+              <GlassButton label={isSaving ? "Saving..." : "Go Deeper"} onPress={handleContinue} />
+            </View>
+          ) : (
+            <View style={styles.optionList}>
+              {currentStep?.options.map((option) => (
+                <Pressable key={option} onPress={() => handleChoice(option)} style={styles.option}>
+                  <Text style={styles.optionText}>{option}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </Animated.View>
       </AtmosphericScrollView>
     </GlassContainer>
   );
@@ -137,63 +141,47 @@ export function ContextSetupScreen() {
 
 const styles = StyleSheet.create({
   content: {
+    flexGrow: 1,
     paddingBottom: theme.spacing.xl,
-    gap: theme.spacing.lg,
   },
-  hero: {
-    gap: theme.spacing.sm,
-    marginTop: theme.spacing.sm,
+  stage: {
+    flex: 1,
+    justifyContent: "center",
+    gap: theme.spacing.xl,
+    minHeight: 560,
   },
-  kicker: {
-    color: theme.colors.secondary,
-    fontSize: theme.typography.caption,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  title: {
+  question: {
     color: theme.colors.text,
-    fontSize: theme.typography.h2,
+    fontSize: 34,
     fontWeight: "800",
-    lineHeight: 30,
+    lineHeight: 40,
+    letterSpacing: -0.8,
+    textAlign: "center",
   },
-  subtitle: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.body,
-    lineHeight: 24,
+  optionList: {
+    gap: 14,
   },
-  group: {
-    gap: theme.spacing.sm,
+  option: {
+    minHeight: 72,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 18,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
   },
-  groupTitle: {
+  optionText: {
     color: theme.colors.text,
-    fontSize: theme.typography.h3,
+    fontSize: 17,
     fontWeight: "700",
+    textAlign: "center",
   },
-  chipsWrap: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing.sm,
-  },
-  chip: {
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-    borderColor: "rgba(255,255,255,0.18)",
-  },
-  chipActive: {
-    backgroundColor: "rgba(107,124,255,0.28)",
-    borderColor: "rgba(163,139,255,0.8)",
-  },
-  chipText: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.body,
-    fontWeight: "600",
-  },
-  chipTextActive: {
-    color: theme.colors.text,
+  textStep: {
+    gap: 16,
   },
   summaryInput: {
-    minHeight: 110,
+    minHeight: 120,
     textAlignVertical: "top",
   },
 });

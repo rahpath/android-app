@@ -40,26 +40,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   stage: {
-    color: theme.colors.secondary,
+    color: "#243754",
     fontSize: theme.typography.caption,
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 1,
   },
   meta: {
-    color: theme.colors.textMuted,
+    color: "rgba(36,55,84,0.64)",
     fontSize: theme.typography.caption,
     fontWeight: "600",
   },
   track: {
     height: 8,
     borderRadius: theme.radius.pill,
-    backgroundColor: "rgba(255,255,255,0.10)",
+    backgroundColor: "rgba(36,55,84,0.10)",
     overflow: "hidden",
   },
   fill: {
     height: "100%",
     borderRadius: theme.radius.pill,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: "#243754",
   },
 });

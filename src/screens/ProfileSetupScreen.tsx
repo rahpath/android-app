@@ -1,6 +1,15 @@
+import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { GlassButton } from "@/components/glass/GlassButton";
 import { GlassContainer } from "@/components/glass/GlassContainer";
@@ -11,26 +20,74 @@ import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { useUser } from "@/context";
 import { theme } from "@/theme/theme";
 
+function parseStoredDate(value?: string) {
+  if (!value) {
+    return new Date(1998, 0, 1);
+  }
+
+  const parts = value.split("-").map(Number);
+  if (parts.length !== 3) {
+    return new Date(1998, 0, 1);
+  }
+
+  return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+function parseStoredTime(value?: string) {
+  const base = new Date();
+  if (!value) {
+    base.setHours(9, 0, 0, 0);
+    return base;
+  }
+
+  const parts = value.split(":").map(Number);
+  base.setHours(parts[0] || 9, parts[1] || 0, 0, 0);
+  return base;
+}
+
+function formatDateForStorage(value: Date) {
+  return `${value.getFullYear()}-${`${value.getMonth() + 1}`.padStart(2, "0")}-${`${value.getDate()}`.padStart(2, "0")}`;
+}
+
+function formatDateForDisplay(value: Date) {
+  return `${`${value.getDate()}`.padStart(2, "0")}/${`${value.getMonth() + 1}`.padStart(2, "0")}/${value.getFullYear()}`;
+}
+
+function formatTime(value: Date) {
+  return `${`${value.getHours()}`.padStart(2, "0")}:${`${value.getMinutes()}`.padStart(2, "0")}`;
+}
+
 export function ProfileSetupScreen() {
   const { user, updateUser } = useUser();
   const [name, setName] = useState("Aryan");
-  const [birthDate, setBirthDate] = useState("");
-  const [birthTime, setBirthTime] = useState("");
+  const [birthDate, setBirthDate] = useState<Date>(new Date(1998, 0, 1));
+  const [birthTime, setBirthTime] = useState<Date>(parseStoredTime());
+  const [draftBirthDate, setDraftBirthDate] = useState<Date>(new Date(1998, 0, 1));
+  const [draftBirthTime, setDraftBirthTime] = useState<Date>(parseStoredTime());
   const [birthLocation, setBirthLocation] = useState("");
+  const [timeUnknown, setTimeUnknown] = useState(true);
+  const [hasSelectedBirthDate, setHasSelectedBirthDate] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    setName(user.name || "Aryan");
-    setBirthDate(user.birthDate || "");
-    setBirthTime(user.birthTime || "");
-    setBirthLocation(user.birthLocation || "");
+    const nextBirthTime = user?.birthTime || "";
+    const nextBirthDate = parseStoredDate(user?.birthDate);
+    setName(user?.name || "Aryan");
+    setBirthDate(nextBirthDate);
+    setBirthTime(parseStoredTime(user?.birthTime));
+    setDraftBirthDate(nextBirthDate);
+    setDraftBirthTime(parseStoredTime(user?.birthTime));
+    setBirthLocation(user?.birthLocation || "");
+    setTimeUnknown(!nextBirthTime);
+    setHasSelectedBirthDate(Boolean(user?.birthDate));
   }, [user]);
 
-  const canContinue = Boolean(name.trim() && birthDate.trim() && birthLocation.trim());
+  const canContinue = useMemo(
+    () => Boolean(name.trim() && birthLocation.trim() && hasSelectedBirthDate),
+    [birthLocation, hasSelectedBirthDate, name],
+  );
 
   const handleContinue = async () => {
     if (!canContinue || isSaving) {
@@ -40,14 +97,34 @@ export function ProfileSetupScreen() {
     setIsSaving(true);
     await updateUser({
       name: name.trim(),
-      birthDate: birthDate.trim(),
-      birthTime: birthTime.trim(),
+      birthDate: formatDateForStorage(birthDate),
+      birthTime: timeUnknown ? "" : formatTime(birthTime),
       birthLocation: birthLocation.trim(),
       chartRevealed: false,
       onboardingCompleted: false,
     });
     setIsSaving(false);
     router.push("/chart-reveal");
+  };
+
+  const handleDateChange = (event: DateTimePickerEvent, value?: Date) => {
+    if (event.type === "dismissed") {
+      return;
+    }
+
+    if (value) {
+      setDraftBirthDate(value);
+    }
+  };
+
+  const handleTimeChange = (event: DateTimePickerEvent, value?: Date) => {
+    if (event.type === "dismissed") {
+      return;
+    }
+
+    if (value) {
+      setDraftBirthTime(value);
+    }
   };
 
   return (
@@ -72,16 +149,39 @@ export function ProfileSetupScreen() {
               onChangeText={setName}
               placeholder="Name"
             />
-            <GlassInput
-              value={birthDate}
-              onChangeText={setBirthDate}
-              placeholder="Birth date (YYYY-MM-DD)"
-            />
-            <GlassInput
-              value={birthTime}
-              onChangeText={setBirthTime}
-              placeholder="Birth time (optional, HH:MM)"
-            />
+
+            <Pressable onPress={() => {
+              setDraftBirthDate(birthDate);
+              setShowDatePicker(true);
+            }}>
+              <GlassPanel style={styles.pickerPanel}>
+                <Text style={styles.pickerLabel}>Birth date</Text>
+                <Text style={styles.pickerValue}>
+                  {hasSelectedBirthDate ? formatDateForDisplay(birthDate) : "Select birth date"}
+                </Text>
+              </GlassPanel>
+            </Pressable>
+
+            <Pressable onPress={() => {
+              if (timeUnknown) {
+                return;
+              }
+              setDraftBirthTime(birthTime);
+              setShowTimePicker(true);
+            }}>
+              <GlassPanel style={[styles.pickerPanel, timeUnknown && styles.pickerDisabled]}>
+                <Text style={styles.pickerLabel}>Birth time</Text>
+                <Text style={styles.pickerValue}>{timeUnknown ? "I don't know" : formatTime(birthTime)}</Text>
+              </GlassPanel>
+            </Pressable>
+
+            <Pressable onPress={() => {
+              const nextValue = !timeUnknown;
+              setTimeUnknown(nextValue);
+            }}>
+              <Text style={styles.toggleText}>{timeUnknown ? "Birth time unknown" : "I don't know birth time"}</Text>
+            </Pressable>
+
             <GlassInput
               value={birthLocation}
               onChangeText={setBirthLocation}
@@ -99,6 +199,73 @@ export function ProfileSetupScreen() {
           </GlassPanel>
         </AtmosphericScrollView>
       </KeyboardAvoidingView>
+
+      <Modal
+        transparent
+        animationType="fade"
+        visible={showDatePicker}
+        onRequestClose={() => setShowDatePicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <GlassPanel style={styles.modalPanel}>
+            <Text style={styles.modalTitle}>Select date of birth</Text>
+            <DateTimePicker
+              value={draftBirthDate}
+              mode="date"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              minimumDate={new Date(1950, 0, 1)}
+              maximumDate={new Date(2026, 11, 31)}
+              onChange={handleDateChange}
+            />
+            <View style={styles.modalActions}>
+              <Pressable onPress={() => setShowDatePicker(false)}>
+                <Text style={styles.modalActionText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  setBirthDate(draftBirthDate);
+                  setHasSelectedBirthDate(true);
+                  setShowDatePicker(false);
+                }}
+              >
+                <Text style={styles.modalActionText}>Done</Text>
+              </Pressable>
+            </View>
+          </GlassPanel>
+        </View>
+      </Modal>
+
+      <Modal
+        transparent
+        animationType="fade"
+        visible={showTimePicker}
+        onRequestClose={() => setShowTimePicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <GlassPanel style={styles.modalPanel}>
+            <Text style={styles.modalTitle}>Select birth time</Text>
+            <DateTimePicker
+              value={draftBirthTime}
+              mode="time"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
+              onChange={handleTimeChange}
+            />
+            <View style={styles.modalActions}>
+              <Pressable onPress={() => setShowTimePicker(false)}>
+                <Text style={styles.modalActionText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  setBirthTime(draftBirthTime);
+                  setShowTimePicker(false);
+                }}
+              >
+                <Text style={styles.modalActionText}>Done</Text>
+              </Pressable>
+            </View>
+          </GlassPanel>
+        </View>
+      </Modal>
     </GlassContainer>
   );
 }
@@ -109,7 +276,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingBottom: theme.spacing.xl,
-    gap: theme.spacing.md,
+    gap: theme.spacing.lg,
   },
   hero: {
     gap: theme.spacing.sm,
@@ -131,10 +298,32 @@ const styles = StyleSheet.create({
   subtitle: {
     color: theme.colors.textMuted,
     fontSize: theme.typography.body,
-    lineHeight: 24,
+    lineHeight: 22,
   },
   form: {
     gap: theme.spacing.sm,
+  },
+  pickerPanel: {
+    gap: 4,
+  },
+  pickerDisabled: {
+    opacity: 0.7,
+  },
+  pickerLabel: {
+    color: theme.colors.secondary,
+    fontSize: theme.typography.caption,
+    fontWeight: "700",
+  },
+  pickerValue: {
+    color: theme.colors.text,
+    fontSize: theme.typography.body,
+    fontWeight: "700",
+  },
+  toggleText: {
+    color: theme.colors.secondary,
+    fontSize: theme.typography.caption,
+    fontWeight: "700",
+    textAlign: "center",
   },
   noteWrap: {
     marginTop: theme.spacing.xs,
@@ -142,6 +331,31 @@ const styles = StyleSheet.create({
   note: {
     color: theme.colors.secondary,
     fontSize: theme.typography.caption,
-    lineHeight: 20,
+    lineHeight: 18,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: theme.spacing.lg,
+    backgroundColor: "rgba(0,0,0,0.45)",
+  },
+  modalPanel: {
+    gap: theme.spacing.md,
+  },
+  modalTitle: {
+    color: theme.colors.text,
+    fontSize: theme.typography.h3,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  modalActionText: {
+    color: theme.colors.secondary,
+    fontSize: theme.typography.body,
+    fontWeight: "700",
   },
 });

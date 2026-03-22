@@ -13,6 +13,6 @@ export function GlassPanel({ children, style, ...rest }: ViewProps) {
 
 const styles = StyleSheet.create({
   panel: {
-    padding: theme.spacing.md,
+    padding: 20,
   },
 });

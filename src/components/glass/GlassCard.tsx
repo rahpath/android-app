@@ -11,7 +11,7 @@ type GlassCardProps = ViewProps & {
 export function GlassCard({
   children,
   style,
-  intensity = 38,
+  intensity = 42,
   ...rest
 }: GlassCardProps) {
   const { resolvedMode, colors } = useAppTheme();
@@ -21,8 +21,8 @@ export function GlassCard({
       style={[
         styles.container,
         {
-          borderColor: resolvedMode === "light" ? "rgba(255,255,255,0.48)" : "rgba(255,255,255,0.18)",
-          backgroundColor: resolvedMode === "light" ? "rgba(255,255,255,0.22)" : "rgba(22,27,66,0.42)",
+          borderColor: resolvedMode === "light" ? "rgba(255,255,255,0.48)" : "rgba(190,166,255,0.16)",
+          backgroundColor: resolvedMode === "light" ? "rgba(255,255,255,0.22)" : "rgba(18,18,26,0.72)",
           shadowColor: colors.glow,
         },
         style,
@@ -40,12 +40,12 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.lg,
     overflow: "hidden",
     borderWidth: 1,
-    shadowOpacity: 0.45,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 6,
+    shadowOpacity: 0.32,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
   },
   content: {
-    padding: theme.spacing.md,
+    padding: 18,
   },
 });

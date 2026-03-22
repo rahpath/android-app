@@ -9,10 +9,10 @@ import { theme } from "@/theme/theme";
 
 const SHELL_ITEMS: Array<{ path: RahShellPath; label: string; helper: string }> = [
   { path: "/home", label: "Home", helper: "Ritual" },
-  { path: "/ask", label: "Ask", helper: "Chat" },
-  { path: "/decision", label: "Decide", helper: "Choice" },
-  { path: "/journey", label: "Journey", helper: "Memory" },
-  { path: "/chart", label: "Chart", helper: "Sky" },
+  { path: "/journey", label: "Reflect", helper: "Memory" },
+  { path: "/ask", label: "Chat", helper: "Chat" },
+  { path: "/decision", label: "Patterns", helper: "Choice" },
+  { path: "/chart", label: "Profile", helper: "Sky" },
 ];
 
 export function RahAppShell({
@@ -102,22 +102,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 4,
-    marginBottom: 10,
+    marginTop: 2,
+    marginBottom: 12,
   },
   brandBlock: {
     gap: 2,
   },
   brandTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800",
-    letterSpacing: 2,
+    letterSpacing: 2.4,
   },
   brandSub: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "700",
     textTransform: "uppercase",
-    letterSpacing: 0.9,
+    letterSpacing: 1.2,
   },
   modePill: {
     borderRadius: theme.radius.pill,
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     right: theme.spacing.md,
     height: 64,
     borderRadius: theme.radius.lg,
-    backgroundColor: "rgba(127,214,255,0.06)",
+    backgroundColor: "rgba(161,126,255,0.08)",
   },
   navBar: {
     flexDirection: "row",

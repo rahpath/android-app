@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    paddingHorizontal: theme.spacing.md,
+    paddingHorizontal: 20,
     paddingVertical: theme.spacing.lg,
   },
 });
