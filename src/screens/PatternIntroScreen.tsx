@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 import { GlassButton } from "@/components/glass/GlassButton";
@@ -5,7 +6,7 @@ import { GlassContainer } from "@/components/glass/GlassContainer";
 import { GlassPanel } from "@/components/glass/GlassPanel";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { useCurrentContext, useUser } from "@/context";
-import { enterRahSurface } from "@/navigation/rahNavigation";
+import { theme } from "@/theme/theme";
 
 export function PatternIntroScreen() {
   const { currentContext } = useCurrentContext();
@@ -16,7 +17,7 @@ export function PatternIntroScreen() {
       onboardingCompleted: true,
       chartRevealed: true,
     });
-    enterRahSurface("/home");
+    router.replace("/home");
   };
 
   return (
@@ -54,14 +55,14 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   copy: {
-    color: "#FFFFFF",
+    color: theme.colors.text,
     fontSize: 26,
     fontWeight: "700",
     lineHeight: 34,
     textAlign: "center",
   },
   subtext: {
-    color: "rgba(255,255,255,0.70)",
+    color: theme.colors.textMuted,
     fontSize: 15,
     lineHeight: 22,
     textAlign: "center",

@@ -327,7 +327,7 @@ export function HomeScreen() {
               </View>
             </View>
             <Pressable style={styles.notificationButton}>
-              <Text style={styles.notificationIcon}>◌</Text>
+              <Text style={styles.notificationIcon}>◦</Text>
             </Pressable>
           </View>
         </GlassPanel>
@@ -377,12 +377,36 @@ export function HomeScreen() {
 
         <Pressable onPress={() => setDrawModalVisible(true)}>
           <GlassPanel style={styles.drawBanner}>
-            <Text style={styles.drawBannerTitle}>Check your energy today</Text>
-            <Text style={styles.drawBannerText}>
-              {usedDrawToday && drawResult
-                ? `Today's card: ${DRAW_OPTIONS.find((option) => option.id === drawResult.cardId)?.label || "Chosen"}`
-                : "Pick one of three cards for a contextual reading."}
-            </Text>
+            <View style={styles.drawBannerArt}>
+              <View style={styles.waveCluster}>
+                <View style={styles.waveLarge} />
+                <View style={styles.waveMid} />
+                <View style={styles.waveSmall} />
+              </View>
+              <View style={styles.compassWrap}>
+                <View style={styles.compassOuter}>
+                  <View style={styles.compassInner} />
+                  <Text style={styles.compassStar}>✦</Text>
+                </View>
+                <View style={styles.cardFan}>
+                  <View style={[styles.cardLeaf, styles.cardLeafBack]} />
+                  <View style={[styles.cardLeaf, styles.cardLeafFront]} />
+                </View>
+              </View>
+            </View>
+            <View style={styles.drawBannerContent}>
+              <View style={styles.drawBannerCopy}>
+                <Text style={styles.drawBannerTitle}>Check your{"\n"}energy today</Text>
+                <Text style={styles.drawBannerText}>
+                  {usedDrawToday && drawResult
+                    ? `Today's card: ${DRAW_OPTIONS.find((option) => option.id === drawResult.cardId)?.label || "Chosen"}`
+                    : "Tarot / intuitive draw"}
+                </Text>
+              </View>
+              <View style={styles.drawRevealPill}>
+                <Text style={styles.drawRevealText}>{usedDrawToday ? "Opened" : "Reveal"}</Text>
+              </View>
+            </View>
           </GlassPanel>
         </Pressable>
 
@@ -666,9 +690,9 @@ const styles = StyleSheet.create({
     borderRadius: 23,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: "rgba(255,255,255,0.52)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.14)",
+    borderColor: "rgba(255,255,255,0.76)",
   },
   avatarLetter: {
     color: theme.colors.text,
@@ -695,7 +719,7 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(255,255,255,0.48)",
   },
   notificationIcon: {
     color: theme.colors.text,
@@ -725,10 +749,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: theme.radius.pill,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(255,255,255,0.48)",
   },
   rangeTabActive: {
-    backgroundColor: "rgba(107,124,255,0.22)",
+    backgroundColor: "rgba(18,55,101,0.14)",
   },
   rangeTabText: {
     color: theme.colors.textSoft,
@@ -782,7 +806,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 999,
     overflow: "hidden",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(255,255,255,0.52)",
   },
   energyFill: {
     height: "100%",
@@ -790,18 +814,149 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
   },
   drawBanner: {
-    gap: 6,
+    overflow: "hidden",
+    minHeight: 148,
+    justifyContent: "space-between",
     marginBottom: theme.spacing.md,
+    paddingBottom: 16,
+  },
+  drawBannerArt: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  drawBannerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: theme.spacing.md,
+    minHeight: 112,
+  },
+  drawBannerCopy: {
+    flex: 1,
+    gap: 6,
+    paddingTop: 6,
   },
   drawBannerTitle: {
     color: theme.colors.text,
-    fontSize: theme.typography.h3,
+    fontSize: 18,
     fontWeight: "700",
+    lineHeight: 24,
   },
   drawBannerText: {
     color: theme.colors.textMuted,
+    fontSize: theme.typography.caption,
+    lineHeight: 18,
+  },
+  drawRevealPill: {
+    alignSelf: "center",
+    borderRadius: theme.radius.pill,
+    backgroundColor: "rgba(246, 234, 210, 0.94)",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: "rgba(196, 173, 132, 0.44)",
+  },
+  drawRevealText: {
+    color: "#3a4f67",
     fontSize: theme.typography.body,
-    lineHeight: 22,
+    fontWeight: "700",
+  },
+  waveCluster: {
+    position: "absolute",
+    left: -12,
+    right: 84,
+    bottom: -18,
+    height: 78,
+  },
+  waveLarge: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 54,
+    borderTopLeftRadius: 48,
+    borderTopRightRadius: 90,
+    backgroundColor: "rgba(39, 82, 119, 0.92)",
+  },
+  waveMid: {
+    position: "absolute",
+    left: 34,
+    width: 132,
+    bottom: 24,
+    height: 32,
+    borderTopLeftRadius: 36,
+    borderTopRightRadius: 50,
+    backgroundColor: "rgba(84, 127, 162, 0.82)",
+    transform: [{ rotate: "-4deg" }],
+  },
+  waveSmall: {
+    position: "absolute",
+    left: 136,
+    width: 94,
+    bottom: 18,
+    height: 24,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 36,
+    backgroundColor: "rgba(117, 158, 188, 0.76)",
+    transform: [{ rotate: "7deg" }],
+  },
+  compassWrap: {
+    position: "absolute",
+    right: 14,
+    top: 8,
+    width: 126,
+    height: 92,
+  },
+  compassOuter: {
+    position: "absolute",
+    right: 18,
+    top: 4,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(239, 230, 207, 0.96)",
+    borderWidth: 2,
+    borderColor: "rgba(67, 92, 119, 0.55)",
+  },
+  compassInner: {
+    position: "absolute",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(67, 92, 119, 0.45)",
+  },
+  compassStar: {
+    color: "#385470",
+    fontSize: 21,
+    fontWeight: "700",
+  },
+  cardFan: {
+    position: "absolute",
+    right: 0,
+    top: 14,
+    width: 58,
+    height: 48,
+  },
+  cardLeaf: {
+    position: "absolute",
+    width: 34,
+    height: 46,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(67, 92, 119, 0.35)",
+    backgroundColor: "rgba(243, 235, 216, 0.98)",
+  },
+  cardLeafBack: {
+    right: 4,
+    top: 2,
+    transform: [{ rotate: "18deg" }],
+  },
+  cardLeafFront: {
+    right: 18,
+    top: 6,
+    transform: [{ rotate: "-8deg" }],
   },
   timelineCard: {
     gap: theme.spacing.md,
@@ -1002,7 +1157,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: theme.spacing.lg,
-    backgroundColor: "rgba(5,5,7,0.66)",
+    backgroundColor: "rgba(33,50,74,0.24)",
   },
   drawModalCard: {
     gap: theme.spacing.md,
@@ -1029,14 +1184,14 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.lg,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(255,255,255,0.5)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.72)",
     paddingHorizontal: 10,
   },
   drawCardOptionActive: {
-    backgroundColor: "rgba(107,124,255,0.22)",
-    borderColor: "rgba(183,156,255,0.42)",
+    backgroundColor: "rgba(18,55,101,0.14)",
+    borderColor: "rgba(79,104,129,0.54)",
   },
   drawCardLabel: {
     color: theme.colors.text,

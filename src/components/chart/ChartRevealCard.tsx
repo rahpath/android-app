@@ -38,25 +38,25 @@ export function ChartRevealCard({
           <PlacementPill
             label="Sun"
             value={`${chart.corePlacements.sun.signLabel} ${chart.corePlacements.sun.degreeWithinSign}`}
-            accent="rgba(255,196,106,0.16)"
+            accent="rgba(196,176,129,0.22)"
           />
         ) : null}
         {chart.corePlacements.moon ? (
           <PlacementPill
             label="Moon"
             value={`${chart.corePlacements.moon.signLabel} ${chart.corePlacements.moon.degreeWithinSign}`}
-            accent="rgba(122,216,255,0.15)"
+            accent="rgba(164,184,201,0.22)"
           />
         ) : null}
         <PlacementPill
           label="Rising"
           value={chart.corePlacements.rising?.signLabel ?? "Needs birth time"}
-          accent="rgba(163,139,255,0.18)"
+          accent="rgba(137,156,178,0.2)"
         />
         <PlacementPill
           label="Place"
           value={chart.location.label.split(",")[0]}
-          accent="rgba(255,255,255,0.08)"
+          accent="rgba(255,255,255,0.44)"
         />
       </View>
 

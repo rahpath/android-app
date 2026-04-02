@@ -15,12 +15,9 @@ type GlassButtonProps = {
 };
 
 export function GlassButton({ label, onPress }: GlassButtonProps) {
-  const { resolvedMode, colors } = useAppTheme();
+  const { colors } = useAppTheme();
 
-  const gradientColors: readonly [string, string] =
-    resolvedMode === "light"
-      ? ["rgba(131,152,255,0.95)", "rgba(189,171,255,0.95)"]
-      : ["#6E4BFF", "#A170FF"];
+  const gradientColors: readonly [string, string] = ["#163b69", "#0f2e58"];
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
@@ -28,9 +25,9 @@ export function GlassButton({ label, onPress }: GlassButtonProps) {
         colors={gradientColors}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.gradient, resolvedMode === "light" && styles.gradientLight]}
+        style={styles.gradient}
       >
-        <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+        <Text style={[styles.label, { color: colors.accentSoft }]}>{label}</Text>
       </LinearGradient>
     </Pressable>
   );
@@ -41,9 +38,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.pill,
     overflow: "hidden",
     shadowColor: theme.colors.glow,
-    shadowOpacity: 0.32,
+    shadowOpacity: 0.24,
     shadowRadius: 18,
-    shadowOffset: { width: 0, height: 12 },
+    shadowOffset: { width: 0, height: 10 },
     elevation: 8,
   },
   pressed: {
@@ -56,10 +53,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.14)",
-  },
-  gradientLight: {
-    borderColor: "rgba(255,255,255,0.58)",
+    borderColor: "rgba(255,255,255,0.22)",
   },
   label: {
     fontSize: 15,

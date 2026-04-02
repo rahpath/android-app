@@ -68,6 +68,12 @@ export function OnboardingDeepenScreen() {
       .then(({ question, questionText: nextText }) => {
         setCurrentQuestion(question);
         setQuestionText(nextText);
+        if (!question) {
+          setCompletionText(nextText || "Profile ready. Rah now has enough context to begin.");
+          setTimeout(() => {
+            router.replace("/first-insight");
+          }, 1200);
+        }
       })
       .finally(() => setIsLoading(false));
   }, [getNextQuestion]);
@@ -168,27 +174,31 @@ export function OnboardingDeepenScreen() {
             <Animated.View style={[styles.centerStage, animatedStyle]}>
               {currentQuestion ? (
                 <>
-                  <Text style={styles.questionText}>{questionText}</Text>
-                  {currentQuestion.type === "short_text" ? (
-                    <GlassInput
-                      value={shortAnswer}
-                      onChangeText={setShortAnswer}
-                      placeholder={currentQuestion.placeholder || "Say it simply"}
-                      multiline
-                      style={styles.textInput}
-                    />
-                  ) : (
-                    <ChoiceButtons
-                      question={currentQuestion}
-                      onSelect={(value) => {
-                        setSelectedChoice(value);
-                        void handleSubmitAnswer(value);
-                      }}
-                    />
-                  )}
+                  <View style={styles.questionCard}>
+                    <Text style={styles.questionText}>{questionText}</Text>
+                    {currentQuestion.type === "short_text" ? (
+                      <GlassInput
+                        value={shortAnswer}
+                        onChangeText={setShortAnswer}
+                        placeholder={currentQuestion.placeholder || "Say it simply"}
+                        multiline
+                        style={styles.textInput}
+                      />
+                    ) : (
+                      <ChoiceButtons
+                        question={currentQuestion}
+                        onSelect={(value) => {
+                          setSelectedChoice(value);
+                          void handleSubmitAnswer(value);
+                        }}
+                      />
+                    )}
+                  </View>
                 </>
               ) : (
-                <Text style={styles.questionText}>{completionText}</Text>
+                <View style={styles.questionCard}>
+                  <Text style={styles.questionText}>{completionText || "Profile ready. Opening Rah..."}</Text>
+                </View>
               )}
             </Animated.View>
           ) : null}
@@ -238,9 +248,13 @@ const styles = StyleSheet.create({
   },
   centerStage: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     gap: theme.spacing.xl,
     minHeight: 560,
+    paddingTop: theme.spacing.xl,
+  },
+  questionCard: {
+    gap: theme.spacing.lg,
   },
   questionText: {
     color: theme.colors.text,
@@ -263,9 +277,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 18,
     borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(255,255,255,0.48)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.72)",
   },
   choiceText: {
     color: theme.colors.text,

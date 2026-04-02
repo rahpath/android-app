@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 999,
-    backgroundColor: "rgba(124,92,255,0.18)",
+    backgroundColor: "rgba(79,104,129,0.18)",
   },
   processingText: {
     color: theme.colors.text,
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "rgba(255,255,255,0.46)",
   },
   metaText: {
     color: theme.colors.textSoft,

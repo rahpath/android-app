@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     flexBasis: "48%",
     borderRadius: theme.radius.md,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
+    borderColor: "rgba(255,255,255,0.68)",
     paddingVertical: theme.spacing.sm,
     paddingHorizontal: theme.spacing.sm,
     gap: 2,

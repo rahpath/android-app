@@ -264,9 +264,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    backgroundColor: "rgba(255,255,255,0.05)",
+    backgroundColor: "rgba(255,255,255,0.48)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.72)",
   },
   promptText: {
     color: theme.colors.text,
@@ -295,6 +295,6 @@ const styles = StyleSheet.create({
   composer: {
     gap: theme.spacing.sm,
     paddingTop: theme.spacing.sm,
-    backgroundColor: "rgba(11,15,42,0.86)",
+    backgroundColor: "rgba(241,236,227,0.68)",
   },
 });

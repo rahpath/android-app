@@ -6,8 +6,7 @@ import { GlassContainer } from "@/components/glass/GlassContainer";
 import { GlassPanel } from "@/components/glass/GlassPanel";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { useAstrology, useCurrentContext } from "@/context";
-
-const NAVY = "#203250";
+import { theme } from "@/theme/theme";
 
 function buildInsight(signal?: string, support?: string) {
   if (signal && support) {
@@ -60,7 +59,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   eyebrow: {
-    color: "rgba(255,255,255,0.66)",
+    color: theme.colors.secondary,
     fontSize: 13,
     fontWeight: "700",
     letterSpacing: 1.5,
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   copy: {
-    color: "#FFFFFF",
+    color: theme.colors.text,
     fontSize: 26,
     fontWeight: "700",
     lineHeight: 34,

@@ -2,31 +2,17 @@ import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  Dimensions,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
 } from "react-native";
 
-import { GlassButton } from "@/components/glass/GlassButton";
-import { GlassCard } from "@/components/glass/GlassCard";
-import { GlassContainer } from "@/components/glass/GlassContainer";
+import { AuthArtContainer } from "@/components/auth/AuthArtContainer";
 import { useCurrentContext, useDecision, useInsights, useMemory, useUser } from "@/context";
 import { enterRahSurface } from "@/navigation/rahNavigation";
 import { storageAdapter } from "@/storage/storageAdapter";
-import { theme } from "@/theme/theme";
-
-const { width } = Dimensions.get("window");
-
-const VALUE_CARDS = [
-  { icon: "•", title: "Track your thoughts" },
-  { icon: "◦", title: "See your patterns" },
-  { icon: "✦", title: "Gain daily clarity" },
-] as const;
 
 export function OpeningScreen() {
   const { user, refreshUser } = useUser();
@@ -34,12 +20,11 @@ export function OpeningScreen() {
   const { refreshMemoryEvents } = useMemory();
   const { refreshDecisions } = useDecision();
   const { refreshInsights } = useInsights();
-  const [stage, setStage] = useState(0);
-  const [activeCard, setActiveCard] = useState(0);
+  const [identity, setIdentity] = useState("");
+  const [password, setPassword] = useState("");
   const [isResetting, setIsResetting] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
   const entrance = useRef(new Animated.Value(0)).current;
-  const scrollRef = useRef<ScrollView | null>(null);
 
   const hasSkyProfile = Boolean(user?.birthDate && user.birthLocation);
   const shouldEnterHome = Boolean(user?.onboardingCompleted);
@@ -53,31 +38,18 @@ export function OpeningScreen() {
     entrance.setValue(0);
     Animated.timing(entrance, {
       toValue: 1,
-      duration: 700,
+      duration: 650,
       useNativeDriver: true,
     }).start();
-  }, [entrance, stage]);
+  }, [entrance]);
 
-  const handleStart = () => {
-    if (shouldEnterHome || hasSkyProfile) {
-      if (shouldEnterHome) {
-        enterRahSurface("/home");
-        return;
-      }
-      router.push(nextRoute);
+  const handlePrimary = () => {
+    if (shouldEnterHome) {
+      enterRahSurface("/home");
       return;
     }
 
-    setStage(1);
-  };
-
-  const handleContinue = () => {
     router.push(nextRoute);
-  };
-
-  const handleCardScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const nextIndex = Math.round(event.nativeEvent.contentOffset.x / (width - 40));
-    setActiveCard(Math.max(0, Math.min(VALUE_CARDS.length - 1, nextIndex)));
   };
 
   const handleResetDemo = async () => {
@@ -97,219 +69,189 @@ export function OpeningScreen() {
       refreshInsights(),
     ]);
 
-    setResetMessage("Demo reset complete. Starting from Sky Setup.");
+    setResetMessage("Demo reset complete. Starting from account setup.");
     setIsResetting(false);
-    setStage(0);
     router.replace("/profile-setup");
   };
 
-  const animatedStyle = {
-    opacity: entrance,
-    transform: [
-      {
-        translateY: entrance.interpolate({
-          inputRange: [0, 1],
-          outputRange: [28, 0],
-        }),
-      },
-    ],
-  };
-
   return (
-    <GlassContainer>
-      <View style={styles.wrapper}>
-        {stage === 0 ? (
-          <Animated.View style={[styles.stage, styles.centerStage, animatedStyle]}>
-            <View style={styles.brandWrap}>
-              <Text style={styles.brand}>RAH</Text>
-              <Text style={styles.brandSub}>Calm intelligence for real life</Text>
-            </View>
+    <AuthArtContainer>
+      <Animated.View
+        style={[
+          styles.screen,
+          {
+            opacity: entrance,
+            transform: [
+              {
+                translateY: entrance.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [24, 0],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        <View style={styles.brandBlock}>
+          <Text style={styles.brand}>RAH</Text>
+        </View>
 
-            <View style={styles.copyWrap}>
-              <Text style={styles.title}>
-                You've lived every day of your life...
-                {"\n"}
-                but how much of it do you understand?
-              </Text>
-              <Text style={styles.subtitle}>
-                A quieter way to notice patterns, timing, and what your life is asking for.
-              </Text>
-            </View>
-
-            <View style={styles.footer}>
-              <GlassButton
-                label={shouldEnterHome ? "Enter" : hasSkyProfile ? "Continue" : "Start"}
-                onPress={handleStart}
+        <View style={styles.card}>
+          <View style={styles.formGroup}>
+            <Text style={styles.fieldLabel}>EMAIL / USERNAME</Text>
+            <View style={styles.fieldShell}>
+              <TextInput
+                value={identity}
+                onChangeText={setIdentity}
+                placeholder="Enter your archive identity"
+                placeholderTextColor="#a9a69d"
+                style={styles.input}
+                autoCapitalize="none"
               />
-              <Pressable onPress={handleResetDemo}>
-                <Text style={styles.resetText}>{isResetting ? "Resetting..." : "Reset demo data"}</Text>
-              </Pressable>
-              {resetMessage ? <Text style={styles.resetStatus}>{resetMessage}</Text> : null}
             </View>
-          </Animated.View>
-        ) : (
-          <Animated.View style={[styles.stage, animatedStyle]}>
-            <View style={styles.cardsHeader}>
-              <Text style={styles.cardsLabel}>What Rah helps you do</Text>
-              <Text style={styles.cardsTitle}>A calm system for reflection</Text>
-            </View>
+          </View>
 
-            <ScrollView
-              ref={scrollRef}
-              horizontal
-              pagingEnabled
-              decelerationRate="fast"
-              showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={handleCardScroll}
-              contentContainerStyle={styles.cardsTrack}
-            >
-              {VALUE_CARDS.map((card) => (
-                <GlassCard key={card.title} style={styles.valueCard}>
-                  <Text style={styles.valueIcon}>{card.icon}</Text>
-                  <Text style={styles.valueTitle}>{card.title}</Text>
-                </GlassCard>
-              ))}
-            </ScrollView>
-
-            <View style={styles.pagination}>
-              {VALUE_CARDS.map((card, index) => (
-                <Pressable
-                  key={card.title}
-                  onPress={() => {
-                    scrollRef.current?.scrollTo({ x: index * (width - 40), animated: true });
-                    setActiveCard(index);
-                  }}
-                  style={[styles.dot, activeCard === index && styles.dotActive]}
-                />
-              ))}
+          <View style={styles.formGroup}>
+            <Text style={styles.fieldLabel}>PASSWORD</Text>
+            <View style={styles.fieldShell}>
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                placeholder="........"
+                placeholderTextColor="#a9a69d"
+                style={styles.input}
+                secureTextEntry
+              />
             </View>
+          </View>
 
-            <View style={styles.footer}>
-              <GlassButton label="Continue" onPress={handleContinue} />
-            </View>
-          </Animated.View>
-        )}
-      </View>
-    </GlassContainer>
+          <Pressable style={styles.primaryButton} onPress={handlePrimary}>
+            <Text style={styles.primaryButtonText}>Sign In</Text>
+          </Pressable>
+
+          <Pressable onPress={() => router.push("/profile-setup")}>
+            <Text style={styles.secondaryAction}>Create Account</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.helpText}>? HELP</Text>
+          <Pressable onPress={handleResetDemo}>
+            <Text style={styles.resetText}>{isResetting ? "Resetting..." : "Reset Demo"}</Text>
+          </Pressable>
+          {resetMessage ? <Text style={styles.resetMessage}>{resetMessage}</Text> : null}
+        </View>
+      </Animated.View>
+    </AuthArtContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  screen: {
     flex: 1,
-  },
-  stage: {
-    flex: 1,
-  },
-  centerStage: {
     justifyContent: "space-between",
-    paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.md,
+    paddingTop: 18,
+    paddingBottom: 14,
   },
-  brandWrap: {
-    gap: 8,
+  brandBlock: {
+    alignItems: "center",
+    marginTop: 10,
   },
   brand: {
-    color: theme.colors.textSoft,
-    fontSize: 14,
+    color: "#fffdf8",
+    fontSize: 31,
     fontWeight: "800",
-    letterSpacing: 4,
+    letterSpacing: 5,
+    textShadowColor: "rgba(17, 43, 74, 0.26)",
+    textShadowOffset: { width: 0, height: 3 },
+    textShadowRadius: 10,
   },
-  brandSub: {
-    color: theme.colors.textSoft,
-    fontSize: theme.typography.caption,
-    letterSpacing: 0.6,
+  card: {
+    marginHorizontal: 6,
+    marginTop: 96,
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 30,
+    borderRadius: 18,
+    backgroundColor: "rgba(248, 244, 237, 0.9)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.78)",
+    shadowColor: "rgba(47, 73, 98, 0.28)",
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 14 },
+    elevation: 10,
+    gap: 24,
   },
-  copyWrap: {
-    gap: theme.spacing.md,
-  },
-  title: {
-    color: theme.colors.text,
-    fontSize: 40,
-    fontWeight: "800",
-    lineHeight: 50,
-    letterSpacing: -1.2,
-  },
-  subtitle: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.body,
-    lineHeight: 24,
-    maxWidth: 320,
-  },
-  cardsHeader: {
-    gap: 8,
-    marginTop: theme.spacing.xl,
-    marginBottom: theme.spacing.lg,
-  },
-  cardsLabel: {
-    color: theme.colors.secondary,
-    fontSize: theme.typography.caption,
-    fontWeight: "700",
-    letterSpacing: 1.1,
-    textTransform: "uppercase",
-  },
-  cardsTitle: {
-    color: theme.colors.text,
-    fontSize: 32,
-    fontWeight: "800",
-    lineHeight: 38,
-    letterSpacing: -0.8,
-  },
-  cardsTrack: {
-    alignItems: "stretch",
-  },
-  valueCard: {
-    width: width - 40,
-    minHeight: 320,
-    justifyContent: "flex-end",
-    marginRight: 16,
-    paddingBottom: 28,
-  },
-  valueIcon: {
-    color: theme.colors.secondary,
-    fontSize: 36,
-    marginBottom: 18,
-  },
-  valueTitle: {
-    color: theme.colors.text,
-    fontSize: 28,
-    fontWeight: "800",
-    lineHeight: 34,
-    letterSpacing: -0.6,
-    maxWidth: 180,
-  },
-  pagination: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+  formGroup: {
     gap: 10,
-    marginTop: theme.spacing.lg,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.18)",
+  fieldLabel: {
+    color: "#5f6e77",
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1.5,
   },
-  dotActive: {
-    width: 26,
-    backgroundColor: theme.colors.secondary,
+  fieldShell: {
+    minHeight: 56,
+    justifyContent: "center",
+    borderRadius: 4,
+    backgroundColor: "rgba(255,255,255,0.52)",
+    borderWidth: 1,
+    borderColor: "rgba(228, 223, 214, 0.95)",
+    paddingHorizontal: 14,
+  },
+  input: {
+    color: "#6e716d",
+    fontSize: 15,
+    fontWeight: "500",
+  },
+  primaryButton: {
+    minHeight: 64,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#123765",
+    shadowColor: "rgba(18, 55, 101, 0.38)",
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 8,
+  },
+  primaryButtonText: {
+    color: "#f8f3eb",
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: 0.4,
+  },
+  secondaryAction: {
+    color: "#3d4f69",
+    fontSize: 17,
+    fontWeight: "600",
+    textAlign: "center",
+    fontStyle: "italic",
   },
   footer: {
-    gap: theme.spacing.sm,
-    marginTop: "auto",
-    paddingBottom: theme.spacing.sm,
+    alignItems: "center",
+    gap: 8,
+  },
+  helpText: {
+    color: "#f7f2e6",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 2,
   },
   resetText: {
-    color: theme.colors.textSoft,
-    fontSize: theme.typography.caption,
-    textAlign: "center",
+    color: "#f7f2e6",
+    fontSize: 12,
     fontWeight: "700",
+    opacity: 0.92,
   },
-  resetStatus: {
-    color: theme.colors.textMuted,
-    fontSize: theme.typography.caption,
+  resetMessage: {
+    color: "#fbf8f0",
+    fontSize: 11,
     textAlign: "center",
-    lineHeight: 18,
+    maxWidth: 240,
+    lineHeight: 16,
   },
 });

@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   arrow: {
-    fontSize: 24,
-    fontWeight: "300",
+    fontSize: 22,
+    fontWeight: "500",
   },
   pressed: {
     opacity: 0.9,

@@ -14,22 +14,22 @@ export function GlassCard({
   intensity = 42,
   ...rest
 }: GlassCardProps) {
-  const { resolvedMode, colors } = useAppTheme();
+  const { colors } = useAppTheme();
 
   return (
     <View
       style={[
         styles.container,
         {
-          borderColor: resolvedMode === "light" ? "rgba(255,255,255,0.48)" : "rgba(190,166,255,0.16)",
-          backgroundColor: resolvedMode === "light" ? "rgba(255,255,255,0.22)" : "rgba(18,18,26,0.72)",
+          borderColor: colors.glassBorder,
+          backgroundColor: colors.glassFill,
           shadowColor: colors.glow,
         },
         style,
       ]}
       {...rest}
     >
-      <BlurView intensity={intensity} tint={resolvedMode === "light" ? "light" : "dark"} style={StyleSheet.absoluteFill} />
+      <BlurView intensity={intensity} tint="light" style={StyleSheet.absoluteFill} />
       <View style={styles.content}>{children}</View>
     </View>
   );
@@ -40,9 +40,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.lg,
     overflow: "hidden",
     borderWidth: 1,
-    shadowOpacity: 0.32,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 12 },
     elevation: 8,
   },
   content: {

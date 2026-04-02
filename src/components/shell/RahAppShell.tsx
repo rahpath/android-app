@@ -7,12 +7,12 @@ import { getRahShellActivePath, navigateWithinRah, type RahShellPath } from "@/n
 import { useAppTheme } from "@/theme/AppThemeProvider";
 import { theme } from "@/theme/theme";
 
-const SHELL_ITEMS: Array<{ path: RahShellPath; label: string; helper: string }> = [
-  { path: "/home", label: "Home", helper: "Ritual" },
-  { path: "/journey", label: "Reflect", helper: "Memory" },
-  { path: "/ask", label: "Chat", helper: "Chat" },
-  { path: "/decision", label: "Patterns", helper: "Choice" },
-  { path: "/chart", label: "Profile", helper: "Sky" },
+const SHELL_ITEMS: Array<{ path: RahShellPath; label: string }> = [
+  { path: "/home", label: "Home" },
+  { path: "/journey", label: "Reflect" },
+  { path: "/ask", label: "Chat" },
+  { path: "/decision", label: "Pattern" },
+  { path: "/chart", label: "Profile" },
 ];
 
 export function RahAppShell({
@@ -54,7 +54,7 @@ export function RahAppShell({
               styles.navBar,
               {
                 borderColor: colors.glassBorder,
-                backgroundColor: resolvedMode === "light" ? "rgba(59,76,120,0.78)" : "rgba(8,11,31,0.78)",
+                backgroundColor: "rgba(247,243,236,0.92)",
               },
             ]}
           >
@@ -68,22 +68,13 @@ export function RahAppShell({
                   style={[
                     styles.navItem,
                     isActive && {
-                      backgroundColor: resolvedMode === "light" ? "rgba(255,255,255,0.18)" : "rgba(107,124,255,0.18)",
+                      backgroundColor: "rgba(18,55,101,0.1)",
                       borderWidth: 1,
-                      borderColor: colors.secondary,
+                      borderColor: "rgba(18,55,101,0.16)",
                     },
                   ]}
                 >
-                  <View
-                    style={[
-                      styles.navDot,
-                      {
-                        backgroundColor: isActive ? colors.accentWarm : "rgba(255,255,255,0.24)",
-                      },
-                    ]}
-                  />
                   <Text style={[styles.navLabel, { color: isActive ? colors.text : colors.textMuted }]}>{item.label}</Text>
-                  <Text style={[styles.navHelper, { color: isActive ? colors.secondary : colors.textSoft }]}>{item.helper}</Text>
                 </Pressable>
               );
             })}
@@ -109,9 +100,9 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   brandTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "800",
-    letterSpacing: 2.4,
+    letterSpacing: 3.2,
   },
   brandSub: {
     fontSize: 10,
@@ -135,52 +126,43 @@ const styles = StyleSheet.create({
   },
   navWrap: {
     paddingTop: theme.spacing.sm,
-    paddingBottom: theme.spacing.xs,
+    paddingBottom: 2,
   },
   navGlow: {
     position: "absolute",
-    top: 2,
+    top: 6,
     left: theme.spacing.md,
     right: theme.spacing.md,
-    height: 64,
-    borderRadius: theme.radius.lg,
-    backgroundColor: "rgba(161,126,255,0.08)",
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "rgba(93,120,143,0.08)",
   },
   navBar: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.xs,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.radius.lg,
+    gap: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+    borderRadius: 28,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    backgroundColor: "rgba(8,11,31,0.78)",
+    borderColor: "rgba(255,255,255,0.78)",
+    backgroundColor: "rgba(247,243,236,0.9)",
     overflow: "hidden",
   },
   navItem: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 3,
-    minHeight: 62,
-    borderRadius: theme.radius.md,
-    paddingHorizontal: 4,
-    paddingVertical: 6,
-  },
-  navDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 999,
+    minHeight: 44,
+    borderRadius: 22,
+    paddingHorizontal: 2,
+    paddingVertical: 8,
   },
   navLabel: {
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  navHelper: {
     fontSize: 11,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 0.6,
+    fontWeight: "700",
+    letterSpacing: 0,
+    flexShrink: 1,
+    textAlign: "center",
   },
 });

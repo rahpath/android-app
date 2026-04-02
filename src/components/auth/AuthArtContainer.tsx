@@ -1,39 +1,31 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, View, type ViewProps } from "react-native";
 
 import { ArchiveIllustrationBackground } from "@/components/auth/ArchiveIllustrationBackground";
-import { useAppTheme } from "@/theme/AppThemeProvider";
-import { theme } from "@/theme/theme";
 
-export function GlassContainer({ children, style }: ViewProps) {
-  const { colors } = useAppTheme();
-
+export function AuthArtContainer({ children, style }: ViewProps) {
   return (
-    <LinearGradient
-      colors={[colors.backgroundStart, colors.backgroundEnd]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.gradient}
-    >
+    <View style={styles.root}>
       <ArchiveIllustrationBackground />
       <SafeAreaView style={styles.safeArea}>
         <View style={[styles.inner, style]}>{children}</View>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  gradient: {
+  root: {
     flex: 1,
+    backgroundColor: "#ece9e4",
   },
   safeArea: {
     flex: 1,
   },
   inner: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: theme.spacing.lg,
+    paddingHorizontal: 22,
+    paddingTop: 12,
+    paddingBottom: 20,
   },
 });
